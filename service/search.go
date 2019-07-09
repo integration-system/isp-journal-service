@@ -1,10 +1,10 @@
 package service
 
 import (
+	"bufio"
 	"compress/gzip"
 	"github.com/integration-system/isp-journal/entry"
 	"github.com/integration-system/isp-lib/config"
-	"github.com/integration-system/isp-lib/logger"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
@@ -12,140 +12,223 @@ import (
 	"isp-journal-service/conf"
 	"isp-journal-service/shared"
 	"os"
+	"path"
+	"strings"
 	"time"
 )
 
-const dirLayout = "2006-01-02"
+const (
+	dirLayout  = "2006-01-02"
+	fileLayout = "2006-01-02T15-04-05.000"
 
-var (
-	SearchService = &searchService{}
+	bufSize   = 8 * 1024
+	fileSplit = "__"
+	fileEnd   = ".log"
 )
 
 type searchService struct {
 	count    int
 	offset   int
 	response []shared.SearchResponse
+
+	hostByExist  map[string]bool
+	eventByExist map[string]bool
+	levelByExist map[string]bool
 }
 
-func (s *searchService) Search(request shared.SearchRequest) ([]shared.SearchResponse, error) {
-	s.count = 0
-	s.offset = 0
-	s.response = make([]shared.SearchResponse, 0, request.Limit)
-
-	if request.From.IsZero() {
-		if !request.To.IsZero() {
-			return nil, status.Error(codes.InvalidArgument, "expected FROM if specified TO")
-		}
-		request.From = time.Now().UTC()
+func NewSearchService() *searchService {
+	return &searchService{
+		count:        0,
+		offset:       0,
+		hostByExist:  make(map[string]bool),
+		eventByExist: make(map[string]bool),
+		levelByExist: make(map[string]bool),
 	}
+}
 
-	if !request.To.IsZero() {
-		if request.To.Before(request.From) {
-			return nil, status.Error(codes.InvalidArgument, "expected FROM will before TO")
-		}
-	} else {
-		request.To = time.Now().UTC()
-	}
+func (s *searchService) Search(req shared.SearchRequest) ([]shared.SearchResponse, error) {
+	s.response = make([]shared.SearchResponse, 0, req.Limit)
+	s.initMapOfExist(req.Host, req.Event, req.Level)
 
-	if files, err := s.getFiles(request); err != nil {
+	if err := s.defineTimeForSearch(&req); err != nil {
 		return nil, err
-	} else {
-		if err := s.readFiles(request, files); err != nil {
+	}
+
+	if arrayOfPath, err := s.getFilesPath(req); err != nil {
+		return nil, err
+	} else if arrayOfPath != nil {
+		if err := s.readFiles(req.Offset, req.Limit, arrayOfPath); err != nil {
 			return nil, err
 		}
 	}
-	for _, value := range s.response {
-		logger.Info(value)
+	return s.response, nil
+}
+
+func (s *searchService) initMapOfExist(host, event, level []string) {
+	for _, value := range host {
+		s.hostByExist[value] = true
 	}
-	if len(s.response) > 0 {
-		return s.response, nil
-	} else {
-		return nil, status.Error(codes.NotFound, "not found") //todo error?
+	for _, value := range event {
+		s.eventByExist[value] = true
+	}
+	for _, value := range level {
+		s.levelByExist[value] = true
 	}
 }
 
-func (s *searchService) getFiles(req shared.SearchRequest) ([]string, error) {
-	from := time.Date(req.From.Year(), req.From.Month(), req.From.Day(), 0, 0, 0, 0, req.From.Location())
-	to := time.Date(req.To.Year(), req.To.Month(), req.To.Day(), 0, 0, 0, 0, req.To.Location())
-	neededDir := make([]string, 0)
+func (s *searchService) defineTimeForSearch(request *shared.SearchRequest) error {
+	if request.From.IsZero() {
+		request.From = time.Now().UTC().AddDate(0, 0, -1)
+	} else {
+		request.From = request.From.UTC()
+	}
+
+	if request.To.IsZero() {
+		request.To = time.Now().UTC()
+	} else {
+		request.To = request.To.UTC()
+		if request.To.Before(request.From) {
+			return status.Error(codes.InvalidArgument, "expected FROM will before TO")
+		}
+	}
+	return nil
+}
+
+func (s *searchService) getFilesPath(req shared.SearchRequest) ([]string, error) {
+	dirs := s.findDirs(req.From, req.To)
+	if len(dirs) == 0 {
+		return nil, nil
+	}
+	return s.findFiles(req.From, req.To, dirs, req.ModuleName)
+}
+
+func (s *searchService) findDirs(from, to time.Time) []string {
+	f := time.Date(from.Year(), from.Month(), from.Day(), 0, 0, 0, 0, from.Location())
+	t := time.Date(to.Year(), to.Month(), to.Day(), 0, 0, 0, 0, to.Location())
+	dirs := make([]string, 0)
 	for {
-		if from.Before(to) {
-			neededDir = append(neededDir, from.Format(dirLayout))
-			from = from.Add(24 * time.Hour)
+		if from.Before(t) {
+			dirs = append(dirs, f.Format(dirLayout))
+			f = f.AddDate(0, 0, 1)
 		} else {
-			neededDir = append(neededDir, from.Format(dirLayout))
+			dirs = append(dirs, f.Format(dirLayout))
 			break
 		}
 	}
-	if len(neededDir) == 0 {
-		return nil, status.Errorf(codes.NotFound, "not found directory from %s to %s", req.From.Format(dirLayout), req.To.Format(dirLayout))
-	}
+	return dirs
+}
 
+func (s *searchService) findFiles(from, to time.Time, dirs []string, middleFile string) ([]string, error) {
 	response := make([]string, 0)
 	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
-	for _, dir := range neededDir {
-		dir := baseDir + "/" + dir + "/" + req.ModuleName
-		fileInfo, err := ioutil.ReadDir(dir)
+	for _, dir := range dirs {
+		dir := path.Join(baseDir, dir, middleFile)
+		filesInfo, err := ioutil.ReadDir(dir)
 		if err != nil {
-			return nil, err
+			if os.IsNotExist(err) {
+				continue
+			} else {
+				return nil, err
+			}
 		}
-
-		//todo check file name - address and time
-
-		for _, file := range fileInfo {
-			response = append(response, dir+"/"+file.Name())
+		for _, fileInfo := range filesInfo {
+			fileName := strings.Split(fileInfo.Name(), fileSplit)
+			if !s.checkEntryField(s.hostByExist, fileName[0]) {
+				continue
+			}
+			fileTimePartName := strings.Split(fileName[1], fileEnd)
+			if ok, err := s.checkFileTimePart(from, to, fileTimePartName[0]); err != nil {
+				return nil, err
+			} else if !ok {
+				continue
+			}
+			response = append(response, path.Join(dir, fileInfo.Name()))
 		}
 	}
 	return response, nil
 }
 
-func (s *searchService) readFiles(req shared.SearchRequest, files []string) error {
+func (s *searchService) readFiles(offset, limit int, files []string) error {
 	for _, filePath := range files {
-		if err := s.unmarshalFile(req, filePath); err != nil {
+		if err := s.extractData(offset, limit, filePath); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *searchService) unmarshalFile(req shared.SearchRequest, path string) error {
+func (s *searchService) extractData(offset, limit int, path string) error {
 	file, err := os.Open(path)
 	defer func() { _ = file.Close() }()
 	if err != nil {
 		return err
 	}
-	gzipReader, err := gzip.NewReader(file)
+	bufReader := bufio.NewReaderSize(file, bufSize)
+	gzipReader, err := gzip.NewReader(bufReader)
 	defer func() { _ = gzipReader.Close() }()
 	if err != nil {
 		return err
 	}
+	return s.unmarshalFile(gzipReader, limit, offset)
+}
+
+func (s *searchService) unmarshalFile(reader io.Reader, limit, offset int) error {
 	for {
-		if s.count >= req.Limit {
-			if s.offset == req.Offset {
-				return nil
-			} else {
-				s.offset++
-				s.count = 0
-			}
+		if s.count >= limit {
+			return nil
 		}
-		response, err := entry.UnmarshalNext(gzipReader)
+		response, err := entry.UnmarshalNext(reader)
 		if err != nil {
 			if err == io.EOF {
-				break
+				return nil
 			}
 			return err
 		}
-		if checkEntry(req, response) {
-			s.count++
-			if s.offset == req.Offset {
-				s.response = append(s.response, convertResponse(response))
+		if s.checkEntry(response) {
+			if s.offset == offset {
+				s.count++
+				s.response = append(s.response, s.convertResponse(response))
+			} else {
+				s.offset++
 			}
 		}
 	}
-	return nil
 }
 
-func convertResponse(entries *entry.Entry) shared.SearchResponse {
+func (s *searchService) checkEntry(entries *entry.Entry) bool {
+	if !s.checkEntryField(s.levelByExist, entries.Level) {
+		return false
+	}
+	if !s.checkEntryField(s.hostByExist, entries.Host) {
+		return false
+	}
+	if !s.checkEntryField(s.eventByExist, entries.Event) {
+		return false
+	}
+	return true
+}
+
+func (s *searchService) checkEntryField(expected map[string]bool, field string) bool {
+	if len(expected) == 0 {
+		return true
+	} else if expected[field] {
+		return true
+	}
+	return false
+}
+
+func (s *searchService) checkFileTimePart(from, to time.Time, name string) (bool, error) {
+	test, err := time.Parse(fileLayout, name)
+	if err != nil {
+		return false, err
+	}
+	if test.Before(to) && test.After(from) {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (s *searchService) convertResponse(entries *entry.Entry) shared.SearchResponse {
 	return shared.SearchResponse{
 		ModuleName: entries.ModuleName,
 		Host:       entries.Host,
@@ -156,26 +239,4 @@ func convertResponse(entries *entry.Entry) shared.SearchResponse {
 		Response:   string(entries.Response),
 		ErrorText:  entries.ErrorText,
 	}
-}
-
-func checkEntry(req shared.SearchRequest, entries *entry.Entry) bool {
-	if !checkEntryField(req.Level, entries.Level) {
-		return false
-	}
-	if !checkEntryField(req.Host, entries.Host) {
-		return false
-	}
-	if !checkEntryField(req.Event, entries.Event) {
-		return false
-	}
-	return true
-}
-
-func checkEntryField(arrayOfExpected []string, field string) bool {
-	for _, expected := range arrayOfExpected {
-		if expected == field {
-			return true
-		}
-	}
-	return false
 }

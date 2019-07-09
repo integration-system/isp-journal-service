@@ -12,5 +12,5 @@ var (
 type searchImpl struct{}
 
 func (searchImpl) Search(request shared.SearchRequest) ([]shared.SearchResponse, error) {
-	return service.SearchService.Search(request)
+	return service.NewSearchService().Search(request)
 }
