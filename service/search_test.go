@@ -19,7 +19,7 @@ func TestSearchImpl_Search(t *testing.T) {
 
 	resp, err := NewSearchService().Search(*req)
 	assert.NoError(err)
-	assert.NotNil(resp)
+	assert.Equal(2, len(resp))
 }
 
 func initRequestSearch() (*shared.SearchRequest, error) {
@@ -38,7 +38,7 @@ func initRequestSearch() (*shared.SearchRequest, error) {
 		Host:       []string{"127.0.0.1"},
 		Event:      []string{"NEW_RECORD"},
 		Level:      []string{"INFO"},
-		Limit:      4,
+		Limit:      2,
 		Offset:     0,
 	}, nil
 }

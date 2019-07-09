@@ -14,6 +14,10 @@ type searchHandler struct {
 	Search func(shared.SearchRequest) ([]shared.SearchResponse, error) `method:"search" group:"log" inner:"true"`
 }
 
+type exportHandler struct {
+	Export streaming.StreamConsumer `method:"export" group:"log" inner:"true"`
+}
+
 func GetAllHandlers() []interface{} {
 	return []interface{}{
 		&logHandler{
@@ -21,6 +25,9 @@ func GetAllHandlers() []interface{} {
 		},
 		&searchHandler{
 			Search: controller.SearchController.Search,
+		},
+		&exportHandler{
+			Export: controller.ExportController.Export,
 		},
 	}
 }
