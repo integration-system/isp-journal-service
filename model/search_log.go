@@ -103,7 +103,7 @@ func (s *searchLog) findDirs(from, to time.Time) []string {
 	t := time.Date(to.Year(), to.Month(), to.Day(), 0, 0, 0, 0, to.Location())
 	dirs := make([]string, 0)
 	for {
-		if from.Before(t) {
+		if f.Before(t) {
 			dirs = append(dirs, f.Format(dirLayout))
 			f = f.AddDate(0, 0, 1)
 		} else {
