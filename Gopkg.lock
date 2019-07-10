@@ -26,6 +26,14 @@
   version = "v0.1.1"
 
 [[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = "UT"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -45,7 +53,7 @@
   version = "v1.2.4"
 
 [[projects]]
-  digest = "1:57bf08b3ada129d5d845734e80096504898445ece891e87ce371d5d67a18a079"
+  digest = "1:07f4fafe81587b642166199f41c3edcca12929fcfcc0261b00be5dea2f968f44"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -56,8 +64,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
-  version = "v1.3.1"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
@@ -279,6 +287,14 @@
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:267844804416a11470a2fbf68549b98959e22d77e0921e2349276958477f08a3"
   name = "github.com/rcrowley/go-metrics"
@@ -347,6 +363,14 @@
   pruneopts = "UT"
   revision = "b5bf975e5823809fb22c7644d008757f78a4259e"
   version = "v1.4.0"
+
+[[projects]]
+  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -453,7 +477,7 @@
     "googleapis/rpc/status",
   ]
   pruneopts = "UT"
-  revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
+  revision = "3bdd9d9f5532d75d09efb230bd767d265245cfe5"
 
 [[projects]]
   digest = "1:cf01ae0753310464677058b125fa31e74fd943781782ada503180ad784fc83d3"
@@ -510,6 +534,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/integration-system/isp-io",
+    "github.com/integration-system/isp-journal/entry",
     "github.com/integration-system/isp-journal/transfer",
     "github.com/integration-system/isp-lib/backend",
     "github.com/integration-system/isp-lib/bootstrap",
@@ -518,7 +543,11 @@
     "github.com/integration-system/isp-lib/logger",
     "github.com/integration-system/isp-lib/streaming",
     "github.com/integration-system/isp-lib/structure",
+    "github.com/integration-system/isp-lib/utils",
+    "github.com/stretchr/testify/assert",
+    "google.golang.org/grpc/codes",
     "google.golang.org/grpc/metadata",
+    "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
