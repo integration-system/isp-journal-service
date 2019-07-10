@@ -3,9 +3,9 @@ package service
 import (
 	"encoding/csv"
 	"github.com/integration-system/isp-journal/entry"
+	"github.com/integration-system/isp-lib/resources"
 	"isp-journal-service/model"
 	"isp-journal-service/shared"
-	"isp-journal-service/utils"
 )
 
 var awaitingExport = []string{"ModuleName", "Host", "Event", "Level", "Time", "Request", "Response", "ErrorText"}
@@ -28,7 +28,7 @@ func NewImportService(req shared.SearchRequest) *exportService {
 }
 
 func (s *exportService) Export(filepath string) error {
-	return utils.UseCsvWriter(filepath, ';', s.exportLog)
+	return resources.CompressedCsvWriter(filepath, ';', s.exportLog)
 }
 
 func (s *exportService) exportLog(writer *csv.Writer) error {

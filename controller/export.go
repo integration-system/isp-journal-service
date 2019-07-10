@@ -2,12 +2,12 @@ package controller
 
 import (
 	"github.com/integration-system/isp-lib/backend"
+	"github.com/integration-system/isp-lib/resources"
 	"github.com/integration-system/isp-lib/streaming"
 	"github.com/integration-system/isp-lib/utils"
 	"google.golang.org/grpc/metadata"
 	"isp-journal-service/service"
 	"isp-journal-service/shared"
-	utils2 "isp-journal-service/utils"
 	"os"
 	"path/filepath"
 )
@@ -17,7 +17,7 @@ var ExportController = exportImpl{}
 type exportImpl struct{}
 
 func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) error {
-	filePath, err := utils2.GetTempFilePath()
+	filePath, err := resources.GetTempFilePath()
 	if err != nil {
 		return err
 	}
