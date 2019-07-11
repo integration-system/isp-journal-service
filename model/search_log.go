@@ -24,14 +24,18 @@ const (
 	bufSize   = 8 * 1024
 	fileSplit = "__"
 	fileEnd   = ".log"
+
+	from = "from"
+	to   = "to"
 )
 
 type searchLog struct {
 	entriesHandler func(*entry.Entry) (bool, error)
 
-	hostByExist  map[string]bool
-	eventByExist map[string]bool
-	levelByExist map[string]bool
+	hostByExist   map[string]bool
+	eventByExist  map[string]bool
+	levelByExist  map[string]bool
+	timeCondition map[string]time.Time
 }
 
 func NewSearchLog(entriesHandler func(*entry.Entry) (continueRead bool, err error)) *searchLog {
@@ -40,13 +44,14 @@ func NewSearchLog(entriesHandler func(*entry.Entry) (continueRead bool, err erro
 		hostByExist:    make(map[string]bool),
 		eventByExist:   make(map[string]bool),
 		levelByExist:   make(map[string]bool),
+		timeCondition:  make(map[string]time.Time),
 	}
 }
 
 func (s *searchLog) Search(req shared.SearchRequest) error {
 	s.initMapOfExist(req.Host, req.Event, req.Level)
 
-	if err := s.defineTimeForSearch(&req); err != nil {
+	if err := s.defineTimeForSearch(req); err != nil {
 		return err
 	}
 
@@ -72,7 +77,7 @@ func (s *searchLog) initMapOfExist(host, event, level []string) {
 	}
 }
 
-func (s *searchLog) defineTimeForSearch(request *shared.SearchRequest) error {
+func (s *searchLog) defineTimeForSearch(request shared.SearchRequest) error {
 	if request.From.IsZero() {
 		request.From = time.Now().UTC().AddDate(0, 0, -1)
 	} else {
@@ -87,20 +92,24 @@ func (s *searchLog) defineTimeForSearch(request *shared.SearchRequest) error {
 			return status.Error(codes.InvalidArgument, "expected FROM will before TO")
 		}
 	}
+	s.timeCondition[from] = request.From
+	s.timeCondition[to] = request.To
 	return nil
 }
 
 func (s *searchLog) getFilesPath(req shared.SearchRequest) ([]string, error) {
-	dirs := s.findDirs(req.From, req.To)
+	dirs := s.findDirs()
 	if len(dirs) == 0 {
 		return nil, nil
 	}
-	return s.findFiles(req.From, req.To, dirs, req.ModuleName)
+	return s.findFiles(dirs, req.ModuleName)
 }
 
-func (s *searchLog) findDirs(from, to time.Time) []string {
+func (s *searchLog) findDirs() []string {
+	from := s.timeCondition[from]
+	to := s.timeCondition[to]
 	f := time.Date(from.Year(), from.Month(), from.Day(), 0, 0, 0, 0, from.Location())
-	t := time.Date(to.Year(), to.Month(), to.Day(), 0, 0, 0, 0, to.Location())
+	t := time.Date(to.Year(), to.Month(), to.Day(), 0, 0, 0, 0, to.Location()).AddDate(0, 0, 1)
 	dirs := make([]string, 0)
 	for {
 		if f.Before(t) {
@@ -114,7 +123,7 @@ func (s *searchLog) findDirs(from, to time.Time) []string {
 	return dirs
 }
 
-func (s *searchLog) findFiles(from, to time.Time, dirs []string, middleFile string) ([]string, error) {
+func (s *searchLog) findFiles(dirs []string, middleFile string) ([]string, error) {
 	response := make([]string, 0)
 	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
 	for _, dir := range dirs {
@@ -133,7 +142,7 @@ func (s *searchLog) findFiles(from, to time.Time, dirs []string, middleFile stri
 				continue
 			}
 			fileTimePartName := strings.Split(fileName[1], fileEnd)
-			if ok, err := s.checkFileTimePart(from, to, fileTimePartName[0]); err != nil {
+			if ok, err := s.checkFileNameTime(s.timeCondition[from], s.timeCondition[to], fileTimePartName[0]); err != nil {
 				return nil, err
 			} else if !ok {
 				continue
@@ -178,6 +187,11 @@ func (s *searchLog) unmarshalFile(reader io.Reader, offset, limit int) error {
 			return err
 		}
 		if s.checkEntry(entries) {
+			if ok, err := s.checkTimeField(s.timeCondition[from], s.timeCondition[to], entries.Time); err != nil {
+				return err
+			} else if !ok {
+				continue
+			}
 			if continueRead, err := s.entriesHandler(entries); err != nil {
 				return err
 			} else if !continueRead {
@@ -209,12 +223,23 @@ func (s *searchLog) checkEntryField(expected map[string]bool, field string) bool
 	return false
 }
 
-func (s *searchLog) checkFileTimePart(from, to time.Time, name string) (bool, error) {
-	test, err := time.Parse(fileLayout, name)
+func (s *searchLog) checkFileNameTime(from, to time.Time, timeString string) (bool, error) {
+	timeInfo, err := time.Parse(fileLayout, timeString)
 	if err != nil {
 		return false, err
 	}
-	if test.Before(to) && test.After(from) {
+	if timeInfo.Before(to.AddDate(0, 0, 1)) && timeInfo.After(from) {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (s *searchLog) checkTimeField(from, to time.Time, timeString string) (bool, error) {
+	timeInfo, err := entry.ParserTime(timeString)
+	if err != nil {
+		return false, err
+	}
+	if timeInfo.Before(to) && timeInfo.After(from) {
 		return true, nil
 	}
 	return false, nil
