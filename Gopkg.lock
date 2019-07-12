@@ -137,7 +137,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f8d2d26c169a47b89873cb05551c08e29c46be8b59bae3a7139aff38e4f5b59f"
+  digest = "1:ec744ac5667507a4379297facbdba9c4188af3ec1558d253f343c0dacca2299e"
   name = "github.com/integration-system/isp-journal"
   packages = [
     "entry",
@@ -145,7 +145,7 @@
     "transfer",
   ]
   pruneopts = "UT"
-  revision = "05566669d92f1137be57d57bf9232232f7cebf4a"
+  revision = "91bb1ba6f1c78a48d65e6cf46babab1bb98870d4"
 
 [[projects]]
   digest = "1:6af4b1668ec6eade05552b8f5eeaf16911ee18ceb324bbf9e69926ffa22b675a"
@@ -399,7 +399,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7d7cc6dc6fc6495f107eb80586838880bbf2c7732306598d922206219bbfcf5f"
+  digest = "1:a0b7634717eaa7c1e556caa592f48b6eb97334dc2e7181298261cd9e6672afc3"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -407,7 +407,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "1bd0404cedf0148dca83663870e12cf8b156c7f7"
+  revision = "a0248ed3a1ce5bf65a1fe9734237590bfc80d8f3"
 
 [[projects]]
   digest = "1:39a425f98fb19427061a693fe6bf0683c9bddec4b25b17067e34fdb465e39cb9"
@@ -443,14 +443,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:afb5346f71acefc3da7ad800f952cb2bcdb762194b05304bbf54d7f9490e31c5"
+  digest = "1:31d44814b45607afa77c6e8ef20ea8bacc1d1053fe084440c874f311732e7ec3"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+  revision = "fae7ac547cb717d141c433a2a173315e216b64c4"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"

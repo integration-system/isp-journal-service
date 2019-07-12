@@ -24,18 +24,17 @@ const (
 	bufSize   = 8 * 1024
 	fileSplit = "__"
 	fileEnd   = ".log"
-
-	from = "from"
-	to   = "to"
 )
 
 type searchLog struct {
 	entriesHandler func(*entry.Entry) (bool, error)
 
-	hostByExist   map[string]bool
-	eventByExist  map[string]bool
-	levelByExist  map[string]bool
-	timeCondition map[string]time.Time
+	hostByExist  map[string]bool
+	eventByExist map[string]bool
+	levelByExist map[string]bool
+
+	from time.Time
+	to   time.Time
 }
 
 func NewSearchLog(entriesHandler func(*entry.Entry) (continueRead bool, err error)) *searchLog {
@@ -44,7 +43,6 @@ func NewSearchLog(entriesHandler func(*entry.Entry) (continueRead bool, err erro
 		hostByExist:    make(map[string]bool),
 		eventByExist:   make(map[string]bool),
 		levelByExist:   make(map[string]bool),
-		timeCondition:  make(map[string]time.Time),
 	}
 }
 
@@ -92,8 +90,8 @@ func (s *searchLog) defineTimeForSearch(request shared.SearchRequest) error {
 			return status.Error(codes.InvalidArgument, "expected FROM will before TO")
 		}
 	}
-	s.timeCondition[from] = request.From
-	s.timeCondition[to] = request.To
+	s.from = request.From
+	s.to = request.To
 	return nil
 }
 
@@ -106,8 +104,8 @@ func (s *searchLog) getFilesPath(req shared.SearchRequest) ([]string, error) {
 }
 
 func (s *searchLog) findDirs() []string {
-	from := s.timeCondition[from]
-	to := s.timeCondition[to]
+	from := s.from
+	to := s.to
 	f := time.Date(from.Year(), from.Month(), from.Day(), 0, 0, 0, 0, from.Location())
 	t := time.Date(to.Year(), to.Month(), to.Day(), 0, 0, 0, 0, to.Location()).AddDate(0, 0, 1)
 	dirs := make([]string, 0)
@@ -142,7 +140,7 @@ func (s *searchLog) findFiles(dirs []string, middleFile string) ([]string, error
 				continue
 			}
 			fileTimePartName := strings.Split(fileName[1], fileEnd)
-			if ok, err := s.checkFileNameTime(s.timeCondition[from], s.timeCondition[to], fileTimePartName[0]); err != nil {
+			if ok, err := s.checkFileNameTime(fileTimePartName[0]); err != nil {
 				return nil, err
 			} else if !ok {
 				continue
@@ -187,7 +185,7 @@ func (s *searchLog) unmarshalFile(reader io.Reader, offset, limit int) error {
 			return err
 		}
 		if s.checkEntry(entries) {
-			if ok, err := s.checkTimeField(s.timeCondition[from], s.timeCondition[to], entries.Time); err != nil {
+			if ok, err := s.checkTimeField(entries.Time); err != nil {
 				return err
 			} else if !ok {
 				continue
@@ -223,23 +221,25 @@ func (s *searchLog) checkEntryField(expected map[string]bool, field string) bool
 	return false
 }
 
-func (s *searchLog) checkFileNameTime(from, to time.Time, timeString string) (bool, error) {
+func (s *searchLog) checkFileNameTime(timeString string) (bool, error) {
 	timeInfo, err := time.Parse(fileLayout, timeString)
 	if err != nil {
 		return false, err
 	}
-	if timeInfo.Before(to.AddDate(0, 0, 1)) && timeInfo.After(from) {
+	if (timeInfo.Before(s.to.AddDate(0, 0, 1)) ||
+		timeInfo.Equal(s.to.AddDate(0, 0, 1))) &&
+		(timeInfo.After(s.from) || timeInfo.Equal(s.from)) {
 		return true, nil
 	}
 	return false, nil
 }
 
-func (s *searchLog) checkTimeField(from, to time.Time, timeString string) (bool, error) {
+func (s *searchLog) checkTimeField(timeString string) (bool, error) {
 	timeInfo, err := entry.ParserTime(timeString)
 	if err != nil {
 		return false, err
 	}
-	if timeInfo.Before(to) && timeInfo.After(from) {
+	if (timeInfo.Before(s.to) || timeInfo.Equal(s.to)) && (timeInfo.After(s.from) || timeInfo.Equal(s.from)) {
 		return true, nil
 	}
 	return false, nil
