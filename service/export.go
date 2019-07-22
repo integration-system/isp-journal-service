@@ -9,7 +9,7 @@ import (
 	"isp-journal-service/conf"
 )
 
-var awaitingExport = []string{"ModuleName", "Host", "Event", "Level", "Time", "Request", "Response", "ErrorText"}
+var awaitingExport = []string{"module_name", "host", "event", "level", "time", "request", "response", "error_text"}
 
 type exportService struct {
 	search.SearchRequest
