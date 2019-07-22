@@ -136,7 +136,6 @@
   revision = "dd98bf2f933e1400ed6640fcfc154785e20a5e22"
 
 [[projects]]
-  branch = "master"
   digest = "1:ce1216ad094ae0b844efae9f1f0c31bc9d0825471c45bd1379b289daa3f1108e"
   name = "github.com/integration-system/isp-journal"
   packages = [
@@ -147,6 +146,7 @@
   ]
   pruneopts = "UT"
   revision = "4bc42efc25a63939ae75e61f0787cf5a2b6946ff"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:6af4b1668ec6eade05552b8f5eeaf16911ee18ceb324bbf9e69926ffa22b675a"
