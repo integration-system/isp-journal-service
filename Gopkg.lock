@@ -129,23 +129,24 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:517d59ce9a30ba8dc8e580d7678c487863867a6783f5d8fd3daca95dd5f686d7"
+  digest = "1:5760e4560df97aebd55ec4ebbf2a20c0f5beb032ea97309189b87a0071d81c23"
   name = "github.com/integration-system/isp-io"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1ec1f910ec2d314a9d770e2c9ea1ac3444582d59"
+  revision = "dd98bf2f933e1400ed6640fcfc154785e20a5e22"
 
 [[projects]]
   branch = "master"
-  digest = "1:ec744ac5667507a4379297facbdba9c4188af3ec1558d253f343c0dacca2299e"
+  digest = "1:ce1216ad094ae0b844efae9f1f0c31bc9d0825471c45bd1379b289daa3f1108e"
   name = "github.com/integration-system/isp-journal"
   packages = [
     "entry",
     "log",
+    "search",
     "transfer",
   ]
   pruneopts = "UT"
-  revision = "91bb1ba6f1c78a48d65e6cf46babab1bb98870d4"
+  revision = "4bc42efc25a63939ae75e61f0787cf5a2b6946ff"
 
 [[projects]]
   digest = "1:6af4b1668ec6eade05552b8f5eeaf16911ee18ceb324bbf9e69926ffa22b675a"
@@ -196,8 +197,8 @@
     "zlib",
   ]
   pruneopts = "UT"
-  revision = "315059c39568ee89ae0c118bc6dc7306041543c3"
-  version = "v1.7.2"
+  revision = "23256797d1e4ccac36fad828362cdfef5b3aeb90"
+  version = "v1.7.4"
 
 [[projects]]
   digest = "1:923c4d7194b42e054b2eb8a6c62824ac55e23ececc1c7e48d4da69c971c55954"
@@ -399,7 +400,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a0b7634717eaa7c1e556caa592f48b6eb97334dc2e7181298261cd9e6672afc3"
+  digest = "1:14263f971ab2057d9d8e0e47a5c9af0ae482c4d2530c47f86e8a247046d5df8e"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -407,7 +408,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "a0248ed3a1ce5bf65a1fe9734237590bfc80d8f3"
+  revision = "55ea350c55431331ff77defe5f450331577f64dd"
 
 [[projects]]
   digest = "1:39a425f98fb19427061a693fe6bf0683c9bddec4b25b17067e34fdb465e39cb9"
@@ -486,7 +487,7 @@
     "googleapis/rpc/status",
   ]
   pruneopts = "UT"
-  revision = "3bdd9d9f5532d75d09efb230bd767d265245cfe5"
+  revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
   digest = "1:cf01ae0753310464677058b125fa31e74fd943781782ada503180ad784fc83d3"
@@ -544,6 +545,7 @@
   input-imports = [
     "github.com/integration-system/isp-io",
     "github.com/integration-system/isp-journal/entry",
+    "github.com/integration-system/isp-journal/search",
     "github.com/integration-system/isp-journal/transfer",
     "github.com/integration-system/isp-lib/backend",
     "github.com/integration-system/isp-lib/bootstrap",
@@ -555,9 +557,7 @@
     "github.com/integration-system/isp-lib/structure",
     "github.com/integration-system/isp-lib/utils",
     "github.com/stretchr/testify/assert",
-    "google.golang.org/grpc/codes",
     "google.golang.org/grpc/metadata",
-    "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

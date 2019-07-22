@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/streaming"
 	"isp-journal-service/controller"
 	"isp-journal-service/shared"
@@ -11,7 +12,7 @@ type logHandler struct {
 }
 
 type searchHandler struct {
-	Search func(shared.SearchRequest) ([]shared.SearchResponse, error) `method:"search" group:"log" inner:"true"`
+	Search func(search.SearchRequest) ([]shared.SearchResponse, error) `method:"search" group:"log" inner:"true"`
 }
 
 type exportHandler struct {

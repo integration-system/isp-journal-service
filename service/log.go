@@ -37,8 +37,7 @@ func (logService) OpenWriter(info transfer.LogInfo) (io.WriteCloser, error) {
 		return nil, err
 	}
 
-	pipe := io2.NewPipe()
-	pipe.Unshift(file)
+	pipe := io2.NewWritePipe(file)
 
 	if !info.Compressed {
 		gzWr := gzip.NewWriter(pipe.Last())

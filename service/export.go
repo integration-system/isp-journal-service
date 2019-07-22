@@ -3,15 +3,16 @@ package service
 import (
 	"encoding/csv"
 	"github.com/integration-system/isp-journal/entry"
+	"github.com/integration-system/isp-journal/search"
+	"github.com/integration-system/isp-lib/config"
 	"github.com/integration-system/isp-lib/resources"
-	"isp-journal-service/model"
-	"isp-journal-service/shared"
+	"isp-journal-service/conf"
 )
 
 var awaitingExport = []string{"ModuleName", "Host", "Event", "Level", "Time", "Request", "Response", "ErrorText"}
 
 type exportService struct {
-	shared.SearchRequest
+	search.SearchRequest
 
 	counterLimit  int
 	counterOffset int
@@ -19,7 +20,7 @@ type exportService struct {
 	writer *csv.Writer
 }
 
-func NewImportService(req shared.SearchRequest) *exportService {
+func NewImportService(req search.SearchRequest) *exportService {
 	return &exportService{
 		SearchRequest: req,
 		counterLimit:  0,
@@ -36,10 +37,11 @@ func (s *exportService) exportLog(writer *csv.Writer) error {
 	if err := s.writer.Write(awaitingExport); err != nil {
 		return err
 	}
+	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
 	if s.Limit == 0 {
-		return model.NewSearchLog(s.workerWithoutLimit).Search(s.SearchRequest)
+		return search.NewSearchLog(s.workerWithoutLimit, baseDir).Search(s.SearchRequest)
 	} else {
-		return model.NewSearchLog(s.workerWithLimit).Search(s.SearchRequest)
+		return search.NewSearchLog(s.workerWithLimit, baseDir).Search(s.SearchRequest)
 	}
 }
 

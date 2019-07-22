@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/backend"
 	"github.com/integration-system/isp-lib/resources"
 	"github.com/integration-system/isp-lib/streaming"
 	"github.com/integration-system/isp-lib/utils"
 	"google.golang.org/grpc/metadata"
 	"isp-journal-service/service"
-	"isp-journal-service/shared"
 	"os"
 	"path/filepath"
 )
@@ -23,7 +23,7 @@ func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) e
 	}
 	defer func() { _ = os.RemoveAll(filepath.Dir(filePath)) }()
 
-	request := new(shared.SearchRequest)
+	request := new(search.SearchRequest)
 	message, err := stream.Recv()
 	if err != nil {
 		return err

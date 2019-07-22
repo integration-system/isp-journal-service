@@ -1,10 +1,10 @@
 package service
 
 import (
+	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/config"
 	"github.com/stretchr/testify/assert"
 	"isp-journal-service/conf"
-	"isp-journal-service/shared"
 	"testing"
 	"time"
 )
@@ -22,7 +22,7 @@ func TestSearchImpl_Search(t *testing.T) {
 	assert.Equal(2, len(resp))
 }
 
-func initRequestSearch() (*shared.SearchRequest, error) {
+func initRequestSearch() (*search.SearchRequest, error) {
 	from, err := time.Parse("2006-01-02T15:04:05.999-07:00", "2019-06-10T08:10:51.964-00:00")
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func initRequestSearch() (*shared.SearchRequest, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &shared.SearchRequest{
+	return &search.SearchRequest{
 		ModuleName: "mdm-test-service",
 		From:       from,
 		To:         to,

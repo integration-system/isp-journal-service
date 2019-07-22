@@ -2,7 +2,9 @@ package service
 
 import (
 	"github.com/integration-system/isp-journal/entry"
-	"isp-journal-service/model"
+	"github.com/integration-system/isp-journal/search"
+	"github.com/integration-system/isp-lib/config"
+	"isp-journal-service/conf"
 	"isp-journal-service/shared"
 )
 
@@ -23,11 +25,12 @@ func NewSearchService() *searchService {
 	}
 }
 
-func (s *searchService) Search(req shared.SearchRequest) ([]shared.SearchResponse, error) {
+func (s *searchService) Search(req search.SearchRequest) ([]shared.SearchResponse, error) {
 	s.response = make([]shared.SearchResponse, 0, req.Limit)
 	s.limit = req.Limit
 	s.offset = req.Offset
-	if err := model.NewSearchLog(s.worker).Search(req); err != nil {
+	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
+	if err := search.NewSearchLog(s.worker, baseDir).Search(req); err != nil {
 		return nil, err
 	}
 	return s.response, nil
