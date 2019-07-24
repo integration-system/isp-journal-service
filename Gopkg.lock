@@ -129,14 +129,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5760e4560df97aebd55ec4ebbf2a20c0f5beb032ea97309189b87a0071d81c23"
+  digest = "1:9b7cbba3fe2efd27a291295e19a3731cd7bb1e0dcb6f41883e95b74f4ba0e09e"
   name = "github.com/integration-system/isp-io"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dd98bf2f933e1400ed6640fcfc154785e20a5e22"
+  revision = "3daf588d878f287976f55a53917d535f787b7d64"
 
 [[projects]]
-  digest = "1:ce1216ad094ae0b844efae9f1f0c31bc9d0825471c45bd1379b289daa3f1108e"
+  digest = "1:67998fbd6d5bdff30ee7fa5efaa743abb78ea0fa44018ca623d01385ea874e75"
   name = "github.com/integration-system/isp-journal"
   packages = [
     "entry",
@@ -145,8 +145,8 @@
     "transfer",
   ]
   pruneopts = "UT"
-  revision = "4bc42efc25a63939ae75e61f0787cf5a2b6946ff"
-  version = "v1.1.0"
+  revision = "2b0c9346bef3a5490e0fc597f564a655d8f63154"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:6af4b1668ec6eade05552b8f5eeaf16911ee18ceb324bbf9e69926ffa22b675a"
@@ -178,15 +178,15 @@
   revision = "5475a8b08e62e41fa886641861ac225e7f91e4e5"
 
 [[projects]]
-  digest = "1:e4f630893d2bbf8c268eba14e7cc92ef8844ee259a45e21ea77cf7656544cb7e"
+  digest = "1:ac7f1061abc812a5d0de6df7e3f477cef942aef503848f436da0f0eb2603bfbf"
   name = "github.com/json-iterator/go"
   packages = [
     ".",
     "extra",
   ]
   pruneopts = "UT"
-  revision = "0ff49de124c6f76f8494e194af75bde0f1a49a29"
-  version = "v1.1.6"
+  revision = "27518f6661eba504be5a7a9a9f6d9460d892ade3"
+  version = "v1.1.7"
 
 [[projects]]
   digest = "1:823dc0f8e4cdad8d91e6aba4cdd985a035596a8aa02e9d2abf1bec347894c41f"
@@ -428,7 +428,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b5936d38011189ba9b2e5890a38c7ffe0ac7f157eef2ddc0fe752117c50d394d"
+  digest = "1:d2aa096fe6b539afe74dd6ab8e9a160304707f1477b01c637b4bbe20d262a25c"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -440,7 +440,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
