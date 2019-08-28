@@ -1,3 +1,5 @@
+## v1.0.6
+* fix search limit
 ## v1.0.5
 * update config description
 * update lib

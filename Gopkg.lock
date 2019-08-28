@@ -136,7 +136,7 @@
   revision = "3daf588d878f287976f55a53917d535f787b7d64"
 
 [[projects]]
-  digest = "1:67998fbd6d5bdff30ee7fa5efaa743abb78ea0fa44018ca623d01385ea874e75"
+  digest = "1:58a2d63a318b501688e753dc91a3820c6294ad269a3be615a8b1ee061f27d58d"
   name = "github.com/integration-system/isp-journal"
   packages = [
     "entry",
@@ -145,8 +145,8 @@
     "transfer",
   ]
   pruneopts = "UT"
-  revision = "2b0c9346bef3a5490e0fc597f564a655d8f63154"
-  version = "v1.1.1"
+  revision = "69c5f3135da713d2c2af4192f74a328887afb0e0"
+  version = "v1.1.3"
 
 [[projects]]
   digest = "1:840590e0da5e35090f502efef00aadc36e6aef69b98ed305efb6c0a4274aa536"
@@ -197,8 +197,8 @@
     "zlib",
   ]
   pruneopts = "UT"
-  revision = "7a422a2abf4b2f2905a961d3b6926e4e21dab4bb"
-  version = "v1.8.0"
+  revision = "2c38f6d2dc5a6a21b6851f2414f4e10adf8e3eee"
+  version = "v1.8.1"
 
 [[projects]]
   digest = "1:923c4d7194b42e054b2eb8a6c62824ac55e23ececc1c7e48d4da69c971c55954"
@@ -428,7 +428,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:082ed090a1aedec21b660263f98f72582e431b56e8e27b88cc00faa1510fde14"
+  digest = "1:8c8471f63317e39731853a4f55d5d8ff43a142aa425a666a0554bdba0a8b7f8b"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -440,18 +440,18 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "74dc4d7220e7acc4e100824340f3e66577424772"
+  revision = "ba9fcec4b297b415637633c5a6e8fa592e4a16c3"
 
 [[projects]]
   branch = "master"
-  digest = "1:13d49ebdcb9d09dd5b445e274059b59705e09327df54b221a853d6a8192182ad"
+  digest = "1:c5b5d55096b762e29d0b887ce73932d06ddcf9def4285f1abd09f801176878ec"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "fb81701db80f1745f51259b1f286de3fe2ec80c8"
+  revision = "c7b8b68b14567162c6602a7c5659ee0f26417c18"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
