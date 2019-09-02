@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/config"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ import (
 func TestSearchImpl_Search(t *testing.T) {
 	assert := assert.New(t)
 
-	initConfig()
+	initConfigForSearch()
 
 	req, err := initRequestSearch()
 	assert.NoError(err)
@@ -43,6 +44,6 @@ func initRequestSearch() (*search.SearchRequest, error) {
 	}, nil
 }
 
-func initConfig() {
+func initConfigForSearch() {
 	config.UnsafeSetRemote(&conf.RemoteConfig{BaseLogDirectory: "./test"})
 }

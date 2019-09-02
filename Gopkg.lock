@@ -136,7 +136,8 @@
   revision = "3daf588d878f287976f55a53917d535f787b7d64"
 
 [[projects]]
-  digest = "1:58a2d63a318b501688e753dc91a3820c6294ad269a3be615a8b1ee061f27d58d"
+  branch = "master"
+  digest = "1:a051c8e01b373bef783bd18f118ff9c2a043284152913f2dd5659aee4c110bcc"
   name = "github.com/integration-system/isp-journal"
   packages = [
     "entry",
@@ -145,8 +146,7 @@
     "transfer",
   ]
   pruneopts = "UT"
-  revision = "69c5f3135da713d2c2af4192f74a328887afb0e0"
-  version = "v1.1.3"
+  revision = "24f98f14299f16fb2772b3dc0059e360cd73bbeb"
 
 [[projects]]
   digest = "1:840590e0da5e35090f502efef00aadc36e6aef69b98ed305efb6c0a4274aa536"
@@ -313,15 +313,23 @@
   revision = "cac0b30c2563378d434b5af411844adff8e32960"
 
 [[projects]]
-  digest = "1:f5139e9f4441369ffb5d44fa9fae62b921457d4dc09cd873ed0fd44511cc87ee"
+  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
+
+[[projects]]
+  digest = "1:ab1672baf07ee80c988e369e5633bcac459342e8e00d0c38a799056395fe9dba"
   name = "github.com/shirou/gopsutil"
   packages = [
     "cpu",
     "internal/common",
   ]
   pruneopts = "UT"
-  revision = "d80c43f9c984a48783daf22f4bd9278006ae483a"
-  version = "v2.19.7"
+  revision = "e4ec7b275ada47ca32799106c2dba142d96aaf93"
+  version = "v2.19.8"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -408,7 +416,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "1241ed7a910a835656961bf69fb8f1fa9cc8b88e"
+  revision = "8ce231e840720d91e22f855ddba797b3b916fc75"
 
 [[projects]]
   digest = "1:39a425f98fb19427061a693fe6bf0683c9bddec4b25b17067e34fdb465e39cb9"
@@ -424,7 +432,7 @@
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
+  revision = "9756ffdc24725223350eb3266ffb92590d28f278"
 
 [[projects]]
   branch = "master"
@@ -444,14 +452,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c5b5d55096b762e29d0b887ce73932d06ddcf9def4285f1abd09f801176878ec"
+  digest = "1:db4d094dcdda93745779828d4f7536085eae66f9ebcba842bda762883db08800"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "c7b8b68b14567162c6602a7c5659ee0f26417c18"
+  revision = "1e83adbbebd0f5dc971915fd7e5db032c3d2b731"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -556,8 +564,11 @@
     "github.com/integration-system/isp-lib/streaming",
     "github.com/integration-system/isp-lib/structure",
     "github.com/integration-system/isp-lib/utils",
+    "github.com/satori/go.uuid",
     "github.com/stretchr/testify/assert",
+    "google.golang.org/grpc/codes",
     "google.golang.org/grpc/metadata",
+    "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

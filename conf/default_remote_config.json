@@ -1,3 +1,4 @@
 {
-  "baseLogDirectory": "/var/log/isp-journal-service"
+  "baseLogDirectory": "/var/log/isp-journal-service",
+  "cursorLifetime": 20
 }

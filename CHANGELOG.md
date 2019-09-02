@@ -1,3 +1,5 @@
+## v1.1.0
+* add new method `search_witch_cursor`
 ## v1.0.6
 * fix search limit
 ## v1.0.5
