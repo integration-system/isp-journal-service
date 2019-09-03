@@ -1,3 +1,5 @@
+## v1.1.1
+* update search with cursor
 ## v1.1.0
 * add new method `search_witch_cursor`
 ## v1.0.6

@@ -16,5 +16,5 @@ func (searchImpl) Search(request search.SearchRequest) ([]search.SearchResponse,
 }
 
 func (searchImpl) SearchWithCursor(request search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
-	return service.NewSearchWithCursor().Search(request)
+	return service.CursorService.Search(request)
 }

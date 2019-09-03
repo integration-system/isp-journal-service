@@ -13,94 +13,81 @@ import (
 
 type (
 	cursorService struct {
-		batchSize int
-		counter   int
-		response  *search.SearchWithCursorResponse
-	}
-	cursorStore struct {
 		sync.Mutex
 		cursorById map[string]*cursor
 	}
 	cursor struct {
+		mx    sync.Mutex
+		id    string
 		s     *search.SyncSearchLog
 		timer *time.Timer
 	}
 )
 
-var CursorStore = cursorStore{
+var CursorService = cursorService{
 	cursorById: make(map[string]*cursor),
-}
-
-func NewSearchWithCursor() *cursorService {
-	return &cursorService{
-		counter:   0,
-		batchSize: 0,
-		response:  &search.SearchWithCursorResponse{Items: make([]search.SearchResponse, 0)},
-	}
 }
 
 func (s *cursorService) Search(req search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
 	if req.CursorId == "" {
 		return s.newCursor(req)
 	} else {
-		CursorStore.Lock()
-		cursor, ok := CursorStore.cursorById[req.CursorId]
-		CursorStore.Unlock()
+		CursorService.Lock()
+		cursor, ok := CursorService.cursorById[req.CursorId]
+		CursorService.Unlock()
 		if !ok {
 			return nil, status.Errorf(codes.NotFound, "cursor with id %s not found", req.CursorId)
 		} else {
-			s.batchSize = req.BatchSize
 			cursor.timer.Stop()
-			s.response.CursorId = req.CursorId
-			return s.worker(cursor)
+			return cursor.nextBatch(req.BatchSize)
 		}
 	}
 }
 
 func (s *cursorService) newCursor(req search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
-	s.batchSize = req.BatchSize
 	cfg := config.GetRemote().(*conf.RemoteConfig)
 	if searchService, err := search.NewSyncSearchService(req.Request, cfg.BaseLogDirectory); err != nil {
 		return nil, err
 	} else {
-		s.response.CursorId = uuid.NewV1().String()
-		newCursor := &cursor{
+		cursor := &cursor{
+			id:    uuid.NewV1().String(),
 			s:     searchService,
 			timer: time.NewTimer(time.Duration(cfg.CursorLifetime) * time.Second),
 		}
-		newCursor.timer.Stop()
-		CursorStore.Lock()
-		CursorStore.cursorById[s.response.CursorId] = newCursor
-		CursorStore.Unlock()
-		go newCursor.deleteCursor(s.response.CursorId)
-		return s.worker(newCursor)
+		cursor.timer.Stop()
+		CursorService.Lock()
+		CursorService.cursorById[cursor.id] = cursor
+		CursorService.Unlock()
+		go cursor.deleteCursor()
+		return cursor.nextBatch(req.BatchSize)
 	}
 }
 
-func (s *cursorService) worker(cursor *cursor) (*search.SearchWithCursorResponse, error) {
-	defer cursor.reset()
+func (c *cursor) nextBatch(batchSize int) (*search.SearchWithCursorResponse, error) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	defer c.reset()
 
-	s.counter = 0
-	for {
-		if s.counter < s.batchSize {
-			extractedEntry, hasMore, err := cursor.s.Next()
-			if err != nil {
-				return nil, err
-			}
-
-			if extractedEntry != nil {
-				s.response.Items = append(s.response.Items, convertResponse(extractedEntry))
-				s.counter++
-			}
-
-			s.response.HasMore = hasMore
-			if !hasMore {
-				return s.response, nil
-			}
-		} else {
-			return s.response, nil
+	hasMoreEntries := true
+	items := make([]search.SearchResponse, 0, batchSize)
+	for i := 0; i < batchSize; i++ {
+		entry, hasMore, err := c.s.Next()
+		if err != nil {
+			return nil, err
+		}
+		if entry != nil {
+			items = append(items, convertResponse(entry))
+		}
+		hasMoreEntries = hasMore
+		if !hasMore {
+			break
 		}
 	}
+	return &search.SearchWithCursorResponse{
+		CursorId: c.id,
+		Items:    items,
+		HasMore:  hasMoreEntries,
+	}, nil
 }
 
 func (c *cursor) reset() {
@@ -108,9 +95,9 @@ func (c *cursor) reset() {
 	c.timer.Reset(time.Duration(cursorLifeTime) * time.Second)
 }
 
-func (c *cursor) deleteCursor(cursorId string) {
+func (c *cursor) deleteCursor() {
 	<-c.timer.C
-	CursorStore.Lock()
-	delete(CursorStore.cursorById, cursorId)
-	CursorStore.Unlock()
+	CursorService.Lock()
+	delete(CursorService.cursorById, c.id)
+	CursorService.Unlock()
 }

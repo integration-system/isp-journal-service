@@ -27,22 +27,22 @@ func TestCursorService_Search(t *testing.T) {
 		BatchSize: 3,
 	}
 
-	response, err := NewSearchWithCursor().Search(request)
+	response, err := CursorService.Search(request)
 	assert.NoError(err)
 	assert.Equal(len(response.Items), 3)
 
 	request.CursorId = response.CursorId
-	response, err = NewSearchWithCursor().Search(request)
+	response, err = CursorService.Search(request)
 	assert.NoError(err)
 	assert.Equal(len(response.Items), 1)
 
 	request.CursorId = response.CursorId
-	response, err = NewSearchWithCursor().Search(request)
+	response, err = CursorService.Search(request)
 	assert.NoError(err)
 	assert.Equal(len(response.Items), 0)
 
 	request.CursorId = "not found"
-	response, err = NewSearchWithCursor().Search(request)
+	response, err = CursorService.Search(request)
 	assert.Error(err)
 	assert.Nil(response)
 }

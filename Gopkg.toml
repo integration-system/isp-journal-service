@@ -29,9 +29,6 @@
   name = "github.com/valyala/fasthttp"
   branch = "master"
 
-[[override]]
-  name = "github.com/integration-system/isp-journal"
-  branch = "master"
 
 [[override]]
   name = "mellium.im/sasl"
