@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/config"
 	"github.com/stretchr/testify/assert"
