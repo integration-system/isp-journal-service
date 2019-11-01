@@ -1,3 +1,5 @@
+### v2.0.0
+* update to new isp-lib & config service
 ## v1.1.1
 * update search with cursor
 ## v1.1.0
