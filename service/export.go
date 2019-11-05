@@ -29,7 +29,7 @@ func NewImportService(req search.SearchRequest) *exportService {
 }
 
 func (s *exportService) Export(filepath string) error {
-	return resources.CompressedCsvWriter(filepath, ';', s.exportLog)
+	return resources.CompressedCsvWriter(filepath, s.exportLog, resources.WithSeparator(';'))
 }
 
 func (s *exportService) exportLog(writer *csv.Writer) error {
