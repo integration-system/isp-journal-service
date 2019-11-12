@@ -132,7 +132,7 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:e7c8b4070458419798511a0d7b59ebb3b42f8609689050d886e94d4f529e7748"
+  digest = "1:a565cd2357c607f147f3994f8e271fdd5a491c8a8a93095d35af3b4115be837b"
   name = "github.com/integration-system/isp-lib"
   packages = [
     "backend",
@@ -148,7 +148,7 @@
     "utils",
   ]
   pruneopts = "UT"
-  revision = "126981c403e27788aa52fd7ce1a13b43596e04ae"
+  revision = "9ecfa413468d829dce66fe95562b4366b0dfb2a0"
   version = "v2.0.0"
 
 [[projects]]
@@ -530,7 +530,7 @@
   version = "v2.2.2"
 
 [[projects]]
-  digest = "1:3b259d69525636f66fabb6de37762a0c02e43b20fce972a454eedc6618067133"
+  digest = "1:25ea8c84118bb09a6ea1fe5d8a2e72d7ead40af714b74d1e849af821f3502414"
   name = "nhooyr.io/websocket"
   packages = [
     ".",
@@ -538,8 +538,8 @@
     "internal/wsjs",
   ]
   pruneopts = "UT"
-  revision = "8bf88772e1209d96a00bc38276cda458661ebe2b"
-  version = "v1.7.2"
+  revision = "edda9c633d5c78c7d38fcc952b4105dd4ccfb619"
+  version = "v1.7.4"
 
 [solve-meta]
   analyzer-name = "dep"
