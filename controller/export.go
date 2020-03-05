@@ -2,10 +2,10 @@ package controller
 
 import (
 	"github.com/integration-system/isp-journal/search"
-	"github.com/integration-system/isp-lib/backend"
-	"github.com/integration-system/isp-lib/resources"
-	"github.com/integration-system/isp-lib/streaming"
-	"github.com/integration-system/isp-lib/utils"
+	"github.com/integration-system/isp-lib/v2/backend"
+	"github.com/integration-system/isp-lib/v2/resources"
+	"github.com/integration-system/isp-lib/v2/streaming"
+	"github.com/integration-system/isp-lib/v2/utils"
 	"google.golang.org/grpc/metadata"
 	"isp-journal-service/service"
 	"os"
@@ -33,7 +33,7 @@ func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) e
 		return err
 	}
 
-	if err := service.NewImportService(*request).Export(filePath); err != nil {
+	if err := service.NewImportService(request).Export(filePath); err != nil {
 		return err
 	}
 

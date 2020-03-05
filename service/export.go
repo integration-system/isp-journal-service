@@ -4,8 +4,8 @@ import (
 	"encoding/csv"
 	"github.com/integration-system/isp-journal/entry"
 	"github.com/integration-system/isp-journal/search"
-	"github.com/integration-system/isp-lib/config"
-	"github.com/integration-system/isp-lib/resources"
+	"github.com/integration-system/isp-lib/v2/config"
+	"github.com/integration-system/isp-lib/v2/resources"
 	"isp-journal-service/conf"
 )
 
@@ -20,9 +20,9 @@ type exportService struct {
 	writer *csv.Writer
 }
 
-func NewImportService(req search.SearchRequest) *exportService {
+func NewImportService(req *search.SearchRequest) *exportService {
 	return &exportService{
-		SearchRequest: req,
+		SearchRequest: *req,
 		counterLimit:  0,
 		counterOffset: 0,
 	}

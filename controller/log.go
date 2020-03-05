@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/integration-system/isp-journal/transfer"
-	"github.com/integration-system/isp-lib/streaming"
+	"github.com/integration-system/isp-lib/v2/streaming"
 
 	"google.golang.org/grpc/metadata"
 	"io"

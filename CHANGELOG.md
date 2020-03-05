@@ -1,3 +1,5 @@
+### v2.1.0
+* migrate to go mod
 ### v2.0.0
 * update to new isp-lib & config service
 ## v1.1.1

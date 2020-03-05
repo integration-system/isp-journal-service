@@ -5,7 +5,7 @@ import (
 	"fmt"
 	io2 "github.com/integration-system/isp-io"
 	"github.com/integration-system/isp-journal/transfer"
-	"github.com/integration-system/isp-lib/config"
+	"github.com/integration-system/isp-lib/v2/config"
 	"io"
 	"isp-journal-service/conf"
 	"os"

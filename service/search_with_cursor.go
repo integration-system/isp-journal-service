@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/integration-system/isp-journal/search"
-	"github.com/integration-system/isp-lib/config"
+	"github.com/integration-system/isp-lib/v2/config"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,7 +28,7 @@ var CursorService = cursorService{
 	cursorById: make(map[string]*cursor),
 }
 
-func (s *cursorService) Search(req search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
+func (s *cursorService) Search(req *search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
 	if req.CursorId == "" {
 		return s.newCursor(req)
 	} else {
@@ -44,7 +44,7 @@ func (s *cursorService) Search(req search.SearchWithCursorRequest) (*search.Sear
 	}
 }
 
-func (s *cursorService) newCursor(req search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
+func (s *cursorService) newCursor(req *search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
 	cfg := config.GetRemote().(*conf.RemoteConfig)
 	if searchService, err := search.NewSyncSearchService(req.Request, cfg.BaseLogDirectory); err != nil {
 		return nil, err

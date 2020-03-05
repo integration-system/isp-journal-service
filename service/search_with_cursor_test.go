@@ -1,8 +1,9 @@
+//nolint
 package service
 
 import (
 	"github.com/integration-system/isp-journal/search"
-	"github.com/integration-system/isp-lib/config"
+	"github.com/integration-system/isp-lib/v2/config"
 	"github.com/stretchr/testify/assert"
 	"isp-journal-service/conf"
 	"testing"
@@ -19,30 +20,30 @@ func initConfigForSearchWithCursor() {
 }
 
 func TestCursorService_Search(t *testing.T) {
-	assert := assert.New(t)
+	a := assert.New(t)
 
 	initConfigForSearchWithCursor()
-	request := search.SearchWithCursorRequest{
+	request := &search.SearchWithCursorRequest{
 		Request:   initRequestSearchWitchCursor(),
 		BatchSize: 3,
 	}
 
 	response, err := CursorService.Search(request)
-	assert.NoError(err)
-	assert.Equal(len(response.Items), 3)
+	a.NoError(err)
+	a.Equal(len(response.Items), 3)
 
 	request.CursorId = response.CursorId
 	response, err = CursorService.Search(request)
-	assert.NoError(err)
-	assert.Equal(len(response.Items), 1)
+	a.NoError(err)
+	a.Equal(len(response.Items), 1)
 
 	request.CursorId = response.CursorId
 	response, err = CursorService.Search(request)
-	assert.NoError(err)
-	assert.Equal(len(response.Items), 0)
+	a.NoError(err)
+	a.Equal(len(response.Items), 0)
 
 	request.CursorId = "not found"
 	response, err = CursorService.Search(request)
-	assert.Error(err)
-	assert.Nil(response)
+	a.Error(err)
+	a.Nil(response)
 }

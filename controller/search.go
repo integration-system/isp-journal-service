@@ -11,10 +11,10 @@ var (
 
 type searchImpl struct{}
 
-func (searchImpl) Search(request search.SearchRequest) ([]search.SearchResponse, error) {
+func (searchImpl) Search(request *search.SearchRequest) ([]search.SearchResponse, error) {
 	return service.NewSearchService().Search(request)
 }
 
-func (searchImpl) SearchWithCursor(request search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
+func (searchImpl) SearchWithCursor(request *search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
 	return service.CursorService.Search(request)
 }

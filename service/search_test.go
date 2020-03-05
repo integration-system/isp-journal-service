@@ -1,8 +1,9 @@
+//nolint
 package service
 
 import (
 	"github.com/integration-system/isp-journal/search"
-	"github.com/integration-system/isp-lib/config"
+	"github.com/integration-system/isp-lib/v2/config"
 	"github.com/stretchr/testify/assert"
 	"isp-journal-service/conf"
 	"testing"
@@ -10,16 +11,15 @@ import (
 )
 
 func TestSearchImpl_Search(t *testing.T) {
-	assert := assert.New(t)
+	a := assert.New(t)
 
 	initConfigForSearch()
-
 	req, err := initRequestSearch()
-	assert.NoError(err)
+	a.NoError(err)
 
-	resp, err := NewSearchService().Search(*req)
-	assert.NoError(err)
-	assert.Equal(2, len(resp))
+	resp, err := NewSearchService().Search(req)
+	a.NoError(err)
+	a.Equal(2, len(resp))
 }
 
 func initRequestSearch() (*search.SearchRequest, error) {

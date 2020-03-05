@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/integration-system/isp-journal/entry"
 	"github.com/integration-system/isp-journal/search"
-	"github.com/integration-system/isp-lib/config"
+	"github.com/integration-system/isp-lib/v2/config"
 	"isp-journal-service/conf"
 )
 
@@ -24,12 +24,12 @@ func NewSearchService() *searchService {
 	}
 }
 
-func (s *searchService) Search(req search.SearchRequest) ([]search.SearchResponse, error) {
+func (s *searchService) Search(req *search.SearchRequest) ([]search.SearchResponse, error) {
 	s.response = make([]search.SearchResponse, 0, req.Limit)
 	s.limit = req.Limit
 	s.offset = req.Offset
 	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
-	if err := search.NewSearchLog(s.worker, baseDir).Search(req); err != nil {
+	if err := search.NewSearchLog(s.worker, baseDir).Search(*req); err != nil {
 		return nil, err
 	}
 	return s.response, nil
