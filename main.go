@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"os"
+
 	"github.com/integration-system/isp-lib/v2/backend"
 	"github.com/integration-system/isp-lib/v2/bootstrap"
 	"github.com/integration-system/isp-lib/v2/config/schema"
@@ -10,7 +12,7 @@ import (
 	"github.com/integration-system/isp-log/stdcodes"
 	"isp-journal-service/conf"
 	"isp-journal-service/helper"
-	"os"
+	"isp-journal-service/model"
 )
 
 var (
@@ -49,7 +51,7 @@ func onShutdown(_ context.Context, _ os.Signal) {
 }
 
 func onRemoteConfigReceive(remoteConfig, oldConfig *conf.RemoteConfig) {
-
+	model.Elastic.ReceiveConfiguration(remoteConfig.ElasticSetting)
 }
 
 func onRemoteErrorReceive(errorMessage map[string]interface{}) {

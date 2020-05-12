@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/backend"
 	"github.com/integration-system/isp-lib/v2/resources"
@@ -8,8 +11,6 @@ import (
 	"github.com/integration-system/isp-lib/v2/utils"
 	"google.golang.org/grpc/metadata"
 	"isp-journal-service/service"
-	"os"
-	"path/filepath"
 )
 
 var ExportController = exportImpl{}
