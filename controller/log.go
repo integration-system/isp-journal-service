@@ -20,7 +20,7 @@ type logImpl struct {
 }
 
 func (logImpl) Transfer(stream streaming.DuplexMessageStream, md metadata.MD) error {
-	var fileName string
+	var dir string
 	_, err := streaming.ReadFile(stream, func(bf streaming.BeginFile) (io.WriteCloser, error) {
 		info, err := transfer.GetLogInfo(bf)
 		if err != nil {
@@ -28,14 +28,14 @@ func (logImpl) Transfer(stream streaming.DuplexMessageStream, md metadata.MD) er
 		}
 
 		var writeCloser io.WriteCloser
-		writeCloser, fileName, err = service.LogService.OpenWriter(*info)
+		writeCloser, dir, err = service.LogService.OpenWriter(*info)
 		return writeCloser, err
 	}, true)
 	if err != nil {
 		return err
 	}
 	go func() {
-		err := service.NewElasticPublisher().Publish(fileName)
+		err := service.NewElasticPublisher().Publish(dir)
 		if err != nil {
 			log.Error(log_code.ErrorElastic, err)
 		}

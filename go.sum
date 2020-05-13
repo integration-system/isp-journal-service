@@ -99,6 +99,7 @@ github.com/integration-system/bellows v0.0.0-20190821124023-244325e8836c h1:yyIH
 github.com/integration-system/bellows v0.0.0-20190821124023-244325e8836c/go.mod h1:6cf4ZNvtzZ/KMiuc+d5Y7rSHjzlYBWEqbVyDfUDhqIE=
 github.com/integration-system/go-cmp v0.0.0-20190131081942-ac5582987a2f h1:52UOJguw5yqe1y2JjmyVxGcZf3kv2BQeUodR363MkiQ=
 github.com/integration-system/go-cmp v0.0.0-20190131081942-ac5582987a2f/go.mod h1:w+dmaWojuIwNujSYg6qt1wKHhSdorLOivCEl/XuLzbM=
+github.com/integration-system/gowsdl v1.0.0 h1:rDv5HrzNUs6aWTj9roSDS9ZdIf58FzF0YVP2nusvbto=
 github.com/integration-system/gowsdl v1.0.0/go.mod h1:ZwTCE+Av5aQLnPj2/3PIop6mzCs1FY7jXrcWDvSjrBA=
 github.com/integration-system/isp-etp-go v2.0.2+incompatible h1:+aQiqH/aMy9pUsifIxfWU/DD8cwbMo24AAIV7Ab6aP4=
 github.com/integration-system/isp-etp-go v2.0.2+incompatible/go.mod h1:NdgczkoFCer9SZOx674EVXCcKRIhFe8LYnwNwoIMDhI=

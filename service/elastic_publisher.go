@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -10,16 +9,15 @@ import (
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/config"
 	log "github.com/integration-system/isp-log"
+	"github.com/pkg/errors"
 	"isp-journal-service/conf"
+	"isp-journal-service/consts"
 	"isp-journal-service/entity"
 	"isp-journal-service/log_code"
 	"isp-journal-service/model"
 )
 
-const (
-	limitStore     = 1000
-	logstashLayout = "2006-01-02"
-)
+const limitStore = 1000
 
 func NewElasticPublisher() *elasticPublisher {
 	return &elasticPublisher{
@@ -44,7 +42,11 @@ func (s *elasticPublisher) Publish(dir string) error {
 	}
 
 	readPipe := io2.NewReadPipe(file)
-	logReader, err := search.NewLogReader(readPipe, true, search.Filter{})
+	fil, err := search.NewFilter(search.SearchRequest{})
+	if err != nil {
+		return err
+	}
+	logReader, err := search.NewLogReader(readPipe, true, fil)
 	if err != nil {
 		return err
 	}
@@ -55,9 +57,12 @@ func (s *elasticPublisher) Publish(dir string) error {
 			return err
 		}
 		if logRecord == nil {
-			_, err := model.Elastic.InsertBatch(s.store[:s.count])
-			if err != nil {
-				log.Error(log_code.ErrorElastic, err)
+			batch := s.store[:s.count]
+			if len(batch) > 0 {
+				err = s.insertBatch(batch)
+				if err != nil {
+					log.Error(log_code.ErrorElastic, err)
+				}
 			}
 			break
 		}
@@ -77,7 +82,7 @@ func (s *elasticPublisher) getElasticRecord(e *entry.Entry) (entity.ElasticRecor
 	if err != nil {
 		return entity.ElasticRecord{}, err
 	}
-	index := fmt.Sprintf("logstash-%s", t.Format(logstashLayout))
+	index := fmt.Sprintf(consts.LogstashIndex)
 
 	doc, err := json.Marshal(map[string]interface{}{
 		"@timestamp": t,
@@ -85,9 +90,8 @@ func (s *elasticPublisher) getElasticRecord(e *entry.Entry) (entity.ElasticRecor
 		"host":       e.Host,
 		"event":      e.Event,
 		"level":      e.Level,
-		"time":       e.Request,
-		"request":    s.formatBytes(e.Request),
-		"response":   s.formatBytes(e.Response),
+		"request":    string(e.Request),
+		"response":   string(e.Response),
 		"errorText":  e.ErrorText,
 	})
 	if err != nil {
@@ -100,24 +104,26 @@ func (s *elasticPublisher) getElasticRecord(e *entry.Entry) (entity.ElasticRecor
 	}, nil
 }
 
-func (s *elasticPublisher) formatBytes(b []byte) interface{} {
-	bytesLength := len(b)
-	if bytesLength > 0 &&
-		((b[0] == '{' && b[bytesLength-1] == '}') ||
-			(b[0] == '[' && b[bytesLength-1] == ']')) {
-		return json.RawMessage(b)
-	}
-	return string(b)
-}
-
 func (s *elasticPublisher) publishRecord(record entity.ElasticRecord) {
 	s.store[s.count] = record
-	if s.count == limitStore {
-		_, err := model.Elastic.InsertBatch(s.store)
+	if s.count == limitStore-1 {
+		err := s.insertBatch(s.store)
 		if err != nil {
 			log.Error(log_code.ErrorElastic, err)
 		}
 		s.count = 0
+	} else {
+		s.count++
 	}
-	s.count++
+}
+
+func (s *elasticPublisher) insertBatch(batch []entity.ElasticRecord) error {
+	resp, err := model.Elastic.InsertBatch(batch)
+	if err != nil {
+		return err
+	}
+	if resp.Errors == true {
+		return errors.New("insert error")
+	}
+	return nil
 }

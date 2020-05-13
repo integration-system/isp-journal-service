@@ -7,8 +7,11 @@ import (
 
 	"github.com/integration-system/go-cmp/cmp"
 	"github.com/integration-system/isp-lib/v2/structure"
+	log "github.com/integration-system/isp-log"
 	"github.com/olivere/elastic"
 	"github.com/olivere/elastic/config"
+	"isp-journal-service/conf"
+	"isp-journal-service/log_code"
 )
 
 var ErrNotConnected = errors.New("elastic: not connected")
@@ -30,7 +33,7 @@ type initHandler func(c *elastic.Client, config structure.ElasticConfiguration)
 type visitor func(c *elastic.Client) error
 
 type RxElasticClient struct {
-	c *elastic.Client
+	cli *elastic.Client
 
 	lastConf structure.ElasticConfiguration
 	lock     sync.RWMutex
@@ -40,7 +43,7 @@ type RxElasticClient struct {
 	eh          errorHandler
 }
 
-func (rc *RxElasticClient) ReceiveConfiguration(config *structure.ElasticConfiguration) {
+func (rc *RxElasticClient) ReceiveConfiguration(setting conf.ElasticSetting) {
 	rc.lock.Lock()
 	defer rc.lock.Unlock()
 
@@ -48,30 +51,32 @@ func (rc *RxElasticClient) ReceiveConfiguration(config *structure.ElasticConfigu
 		return
 	}
 
-	if !cmp.Equal(rc.lastConf, config) {
+	if !cmp.Equal(rc.lastConf, setting.Config) {
 		ok := true
 
-		var c *elastic.Client
-
-		if client, err := newElasticClient(config); err != nil {
+		client, err := newElasticClient(setting.Config)
+		if err != nil {
 			if rc.eh != nil {
-				rc.eh(&ErrorEvent{"connect", err, *config})
+				rc.eh(&ErrorEvent{"connect", err, *setting.Config})
 			}
 			ok = false
-		} else {
-			c = client
 		}
 
-		if ok && rc.c != nil {
-			rc.c.Stop()
-			rc.c = nil
+		if ok && rc.cli != nil {
+			rc.cli.Stop()
+			rc.cli = nil
 		}
 
 		if ok {
-			rc.c = c
-			rc.lastConf = *config
+			rc.cli = client
+			rc.lastConf = *setting.Config
 			if rc.initHandler != nil {
-				rc.initHandler(rc.c, *config)
+				rc.initHandler(rc.cli, *setting.Config)
+			}
+
+			err = policy.CreateLogstashPolicy(setting.Config.URL, setting.Policy)
+			if err != nil {
+				log.Fatal(log_code.ErrorElastic, err)
 			}
 		}
 	}
@@ -82,9 +87,9 @@ func (rc *RxElasticClient) Close() error {
 	defer rc.lock.Unlock()
 
 	rc.active = false
-	if rc.c != nil {
-		c := rc.c
-		rc.c = nil
+	if rc.cli != nil {
+		c := rc.cli
+		rc.cli = nil
 		c.Stop()
 	}
 	return nil
@@ -94,11 +99,10 @@ func (rc *RxElasticClient) Visit(v visitor) error {
 	rc.lock.RLock()
 	defer rc.lock.RUnlock()
 
-	if rc.c == nil {
+	if rc.cli == nil {
 		return ErrNotConnected
 	}
-
-	return v(rc.c)
+	return v(rc.cli)
 }
 
 func NewRxElasticClient(opts ...Option) *RxElasticClient {
@@ -107,15 +111,14 @@ func NewRxElasticClient(opts ...Option) *RxElasticClient {
 	for _, o := range opts {
 		o(rdc)
 	}
-
 	return rdc
 }
 
 func newElasticClient(cfg *structure.ElasticConfiguration) (*elastic.Client, error) {
 	elasticConfig := config.Config{}
-	if err := cfg.ConvertTo(&elasticConfig); err != nil {
+	err := cfg.ConvertTo(&elasticConfig)
+	if err != nil {
 		return nil, err
-	} else {
-		return elastic.NewClientFromConfig(&elasticConfig)
 	}
+	return elastic.NewClientFromConfig(&elasticConfig)
 }

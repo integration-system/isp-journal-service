@@ -1,14 +1,15 @@
 package service
 
 import (
+	"sync"
+	"time"
+
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/config"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"isp-journal-service/conf"
-	"sync"
-	"time"
 )
 
 type (
@@ -31,36 +32,36 @@ var CursorService = cursorService{
 func (s *cursorService) Search(req *search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
 	if req.CursorId == "" {
 		return s.newCursor(req)
-	} else {
-		CursorService.Lock()
-		cursor, ok := CursorService.cursorById[req.CursorId]
-		CursorService.Unlock()
-		if !ok {
-			return nil, status.Errorf(codes.NotFound, "cursor with id %s not found", req.CursorId)
-		} else {
-			cursor.timer.Stop()
-			return cursor.nextBatch(req.BatchSize)
-		}
 	}
+
+	CursorService.Lock()
+	cursor, ok := CursorService.cursorById[req.CursorId]
+	CursorService.Unlock()
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "cursor with id %s not found", req.CursorId)
+	}
+	cursor.timer.Stop()
+	return cursor.nextBatch(req.BatchSize)
 }
 
 func (s *cursorService) newCursor(req *search.SearchWithCursorRequest) (*search.SearchWithCursorResponse, error) {
 	cfg := config.GetRemote().(*conf.RemoteConfig)
-	if searchService, err := search.NewSyncSearchService(req.Request, cfg.BaseLogDirectory); err != nil {
+	searchService, err := search.NewSyncSearchService(req.Request, cfg.BaseLogDirectory)
+	if err != nil {
 		return nil, err
-	} else {
-		cursor := &cursor{
-			id:    uuid.NewV1().String(),
-			s:     searchService,
-			timer: time.NewTimer(time.Duration(cfg.CursorLifetime) * time.Second),
-		}
-		cursor.timer.Stop()
-		CursorService.Lock()
-		CursorService.cursorById[cursor.id] = cursor
-		CursorService.Unlock()
-		go cursor.deleteCursor()
-		return cursor.nextBatch(req.BatchSize)
 	}
+
+	cursor := &cursor{
+		id:    uuid.NewV1().String(),
+		s:     searchService,
+		timer: time.NewTimer(time.Duration(cfg.CursorLifetime) * time.Second),
+	}
+	cursor.timer.Stop()
+	CursorService.Lock()
+	CursorService.cursorById[cursor.id] = cursor
+	CursorService.Unlock()
+	go cursor.deleteCursor()
+	return cursor.nextBatch(req.BatchSize)
 }
 
 func (c *cursor) nextBatch(batchSize int) (*search.SearchWithCursorResponse, error) {

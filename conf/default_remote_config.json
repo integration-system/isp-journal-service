@@ -1,4 +1,16 @@
 {
   "baseLogDirectory": "/var/log/isp-journal-service",
-  "cursorLifetime": 20
+  "cursorLifetime": 20,
+  "elasticSetting": {
+    "enable": false,
+    "config": {
+      "uRL": "http://127.0.0.1:9200",
+      "shards": 1
+    },
+    "policy": {
+      "rolloverSize": "50GB",
+      "rolloverAge": "30d",
+      "deleteAge": "90d"
+    }
+  }
 }

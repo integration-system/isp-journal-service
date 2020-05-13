@@ -29,7 +29,8 @@ func (s *searchService) Search(req *search.SearchRequest) ([]search.SearchRespon
 	s.limit = req.Limit
 	s.offset = req.Offset
 	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
-	if err := search.NewSearchLog(s.worker, baseDir).Search(*req); err != nil {
+	err := search.NewSearchLog(s.worker, baseDir).Search(*req)
+	if err != nil {
 		return nil, err
 	}
 	return s.response, nil

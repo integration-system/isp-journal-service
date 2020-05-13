@@ -14,4 +14,11 @@ type RemoteConfig struct {
 type ElasticSetting struct {
 	Enable bool
 	Config *structure.ElasticConfiguration
+	Policy PolicySetting
+}
+
+type PolicySetting struct {
+	RolloverSize string
+	RolloverAge  string
+	DeleteAge    string
 }

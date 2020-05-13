@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/csv"
+
 	"github.com/integration-system/isp-journal/entry"
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/config"
@@ -40,9 +41,8 @@ func (s *exportService) exportLog(writer *csv.Writer) error {
 	baseDir := config.GetRemote().(*conf.RemoteConfig).BaseLogDirectory
 	if s.Limit == 0 {
 		return search.NewSearchLog(s.workerWithoutLimit, baseDir).Search(s.SearchRequest)
-	} else {
-		return search.NewSearchLog(s.workerWithLimit, baseDir).Search(s.SearchRequest)
 	}
+	return search.NewSearchLog(s.workerWithLimit, baseDir).Search(s.SearchRequest)
 }
 
 func (s *exportService) workerWithLimit(entries *entry.Entry) (bool, error) {

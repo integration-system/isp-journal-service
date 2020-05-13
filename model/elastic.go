@@ -6,7 +6,6 @@ import (
 	"github.com/integration-system/isp-lib/v2/structure"
 	log "github.com/integration-system/isp-log"
 	"github.com/integration-system/isp-log/stdcodes"
-	"github.com/json-iterator/go"
 	"github.com/olivere/elastic"
 	uuid "github.com/satori/go.uuid"
 	"isp-journal-service/conf"
@@ -14,8 +13,6 @@ import (
 	"isp-journal-service/entity"
 	"isp-journal-service/log_code"
 )
-
-var json = jsoniter.ConfigFastest
 
 var Elastic = &elasticClient{
 	cli: nil,
@@ -33,13 +30,14 @@ func (e *elasticClient) ReceiveConfiguration(setting conf.ElasticSetting) {
 		if e.cli == nil {
 			e.defaultElasticClient()
 		}
-		e.cli.ReceiveConfiguration(setting.Config)
+		e.cli.ReceiveConfiguration(setting)
 	} else {
 		if e.cli != nil {
 			err := e.cli.Close()
 			if err != nil {
 				log.Error(log_code.ErrorElastic, err)
 			}
+			e.cli = nil
 		}
 	}
 }
@@ -50,6 +48,7 @@ func (e *elasticClient) InsertBatch(records []entity.ElasticRecord) (*elastic.Bu
 		requestList[i] = elastic.NewBulkIndexRequest().
 			Index(record.Index).
 			Doc(record.Doc).
+			Type("_doc").
 			Id(uuid.NewV1().String())
 	}
 
@@ -72,7 +71,7 @@ func (e *elasticClient) defaultElasticClient() {
 }
 
 func (e *elasticClient) initializingHandler(c *elastic.Client, config structure.ElasticConfiguration) {
-	log.Infof(log_code.InfoInitSuccessElastic, "elastic: successfully connected to %v", config.URL)
+	log.Infof(log_code.ErrorElastic, "elastic: successfully connected to %v", config.URL)
 }
 
 func (e *elasticClient) errorHandler(err *es.ErrorEvent) {
