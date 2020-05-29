@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/backend"
 	"github.com/integration-system/isp-lib/v2/resources"
@@ -8,8 +11,6 @@ import (
 	"github.com/integration-system/isp-lib/v2/utils"
 	"google.golang.org/grpc/metadata"
 	"isp-journal-service/service"
-	"os"
-	"path/filepath"
 )
 
 var ExportController = exportImpl{}
@@ -29,11 +30,13 @@ func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) e
 		return err
 	}
 	body := backend.ResolveBody(message)
-	if err := utils.ConvertGrpcToGo(body, request); err != nil {
+	err = utils.ConvertGrpcToGo(body, request)
+	if err != nil {
 		return err
 	}
 
-	if err := service.NewImportService(request).Export(filePath); err != nil {
+	err = service.NewImportService(request).Export(filePath)
+	if err != nil {
 		return err
 	}
 
@@ -42,7 +45,8 @@ func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) e
 		ContentType:  "log/csv",
 		FormDataName: "log",
 	}
-	if err := streaming.WriteFile(stream, filePath, bf); err != nil {
+	err = streaming.WriteFile(stream, filePath, bf)
+	if err != nil {
 		return err
 	}
 	return nil

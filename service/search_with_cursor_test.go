@@ -2,11 +2,12 @@
 package service
 
 import (
+	"testing"
+
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/config"
 	"github.com/stretchr/testify/assert"
 	"isp-journal-service/conf"
-	"testing"
 )
 
 func initRequestSearchWitchCursor() search.SearchRequest {

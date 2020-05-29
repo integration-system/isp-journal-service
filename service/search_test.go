@@ -2,12 +2,13 @@
 package service
 
 import (
+	"testing"
+	"time"
+
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/config"
 	"github.com/stretchr/testify/assert"
 	"isp-journal-service/conf"
-	"testing"
-	"time"
 )
 
 func TestSearchImpl_Search(t *testing.T) {

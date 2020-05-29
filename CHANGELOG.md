@@ -1,3 +1,5 @@
+### v2.3.0
+* add optional log transferring to  Elasticsearch
 ### v2.1.0
 * migrate to go mod
 ### v2.0.0
