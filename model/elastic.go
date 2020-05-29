@@ -63,8 +63,8 @@ func (e *elasticClient) InsertBatch(records []entity.ElasticRecord) (*elastic.Bu
 	return resp, err
 }
 
-func (e *elasticClient) defaultElasticClient() {
-	e.cli = es.NewRxElasticClient(
+func (e *elasticClient) defaultElasticClient() *es.RxElasticClient {
+	return es.NewRxElasticClient(
 		es.WithInitializingHandler(e.initializingHandler),
 		es.WithInitializingErrorHandler(e.errorHandler),
 	)

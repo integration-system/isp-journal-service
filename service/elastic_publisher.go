@@ -1,10 +1,8 @@
 package service
 
 import (
-	"fmt"
 	"os"
 
-	io2 "github.com/integration-system/isp-io"
 	"github.com/integration-system/isp-journal/entry"
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/config"
@@ -41,15 +39,15 @@ func (s *elasticPublisher) Publish(dir string) error {
 		return err
 	}
 
-	readPipe := io2.NewReadPipe(file)
 	fil, err := search.NewFilter(search.SearchRequest{})
 	if err != nil {
 		return err
 	}
-	logReader, err := search.NewLogReader(readPipe, true, fil)
+	logReader, err := search.NewLogReader(file, true, fil)
 	if err != nil {
 		return err
 	}
+	defer logReader.Close()
 
 	for {
 		logRecord, err := logReader.FilterNext()
@@ -82,7 +80,6 @@ func (s *elasticPublisher) getElasticRecord(e *entry.Entry) (entity.ElasticRecor
 	if err != nil {
 		return entity.ElasticRecord{}, err
 	}
-	index := fmt.Sprintf(consts.LogstashIndex)
 
 	doc, err := json.Marshal(map[string]interface{}{
 		"@timestamp": t,
@@ -99,7 +96,7 @@ func (s *elasticPublisher) getElasticRecord(e *entry.Entry) (entity.ElasticRecor
 	}
 
 	return entity.ElasticRecord{
-		Index: index,
+		Index: consts.LogstashIndex,
 		Doc:   doc,
 	}, nil
 }
