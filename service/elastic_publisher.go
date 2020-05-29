@@ -17,6 +17,10 @@ import (
 
 const limitStore = 1000
 
+var (
+	ErrElasticInsertion = errors.New("insert error")
+)
+
 func NewElasticPublisher() *elasticPublisher {
 	return &elasticPublisher{
 		store: make([]entity.ElasticRecord, limitStore),
@@ -119,8 +123,8 @@ func (s *elasticPublisher) insertBatch(batch []entity.ElasticRecord) error {
 	if err != nil {
 		return err
 	}
-	if resp.Errors == true {
-		return errors.New("insert error")
+	if resp.Errors {
+		return ErrElasticInsertion
 	}
 	return nil
 }

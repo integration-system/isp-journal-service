@@ -31,14 +31,12 @@ func (e *elasticClient) ReceiveConfiguration(setting conf.ElasticSetting) {
 			e.defaultElasticClient()
 		}
 		e.cli.ReceiveConfiguration(setting)
-	} else {
-		if e.cli != nil {
-			err := e.cli.Close()
-			if err != nil {
-				log.Error(log_code.ErrorElastic, err)
-			}
-			e.cli = nil
+	} else if e.cli != nil {
+		err := e.cli.Close()
+		if err != nil {
+			log.Error(log_code.ErrorElastic, err)
 		}
+		e.cli = nil
 	}
 }
 

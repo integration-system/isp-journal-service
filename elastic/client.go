@@ -22,7 +22,7 @@ type ErrorEvent struct {
 	config structure.ElasticConfiguration
 }
 
-func (er ErrorEvent) Error() string {
+func (er *ErrorEvent) Error() string {
 	return fmt.Sprintf("rxElasticClient: %s: %v, config: %v", er.action, er.err, er.config)
 }
 
@@ -50,34 +50,34 @@ func (rc *RxElasticClient) ReceiveConfiguration(setting conf.ElasticSetting) {
 	if !rc.active {
 		return
 	}
+	if cmp.Equal(rc.lastConf, setting.Config) {
+		return
+	}
 
-	if !cmp.Equal(rc.lastConf, setting.Config) {
-		ok := true
+	ok := true
+	client, err := newElasticClient(setting.Config)
+	if err != nil {
+		if rc.eh != nil {
+			rc.eh(&ErrorEvent{"connect", err, *setting.Config})
+		}
+		ok = false
+	}
 
-		client, err := newElasticClient(setting.Config)
+	if ok && rc.cli != nil {
+		rc.cli.Stop()
+		rc.cli = nil
+	}
+
+	if ok {
+		rc.cli = client
+		rc.lastConf = *setting.Config
+		if rc.initHandler != nil {
+			rc.initHandler(rc.cli, *setting.Config)
+		}
+
+		err = policy.CreateLogstashPolicy(setting.Config.URL, setting.Policy)
 		if err != nil {
-			if rc.eh != nil {
-				rc.eh(&ErrorEvent{"connect", err, *setting.Config})
-			}
-			ok = false
-		}
-
-		if ok && rc.cli != nil {
-			rc.cli.Stop()
-			rc.cli = nil
-		}
-
-		if ok {
-			rc.cli = client
-			rc.lastConf = *setting.Config
-			if rc.initHandler != nil {
-				rc.initHandler(rc.cli, *setting.Config)
-			}
-
-			err = policy.CreateLogstashPolicy(setting.Config.URL, setting.Policy)
-			if err != nil {
-				log.Fatal(log_code.ErrorElastic, err)
-			}
+			log.Fatal(log_code.ErrorElastic, err) //nolint
 		}
 	}
 }
