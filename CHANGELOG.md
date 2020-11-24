@@ -1,3 +1,6 @@
+### v2.2.1
+* updated isp-lib
+* updated isp-event-lib
 ### v2.3.0
 * add optional log transferring to  Elasticsearch
 ### v2.1.0
