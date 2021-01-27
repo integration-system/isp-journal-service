@@ -1,12 +1,8 @@
 package controller
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/integration-system/isp-journal/search"
 	"github.com/integration-system/isp-lib/v2/backend"
-	"github.com/integration-system/isp-lib/v2/resources"
 	"github.com/integration-system/isp-lib/v2/streaming"
 	"github.com/integration-system/isp-lib/v2/utils"
 	"google.golang.org/grpc/metadata"
@@ -18,11 +14,16 @@ var ExportController = exportImpl{}
 type exportImpl struct{}
 
 func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) error {
-	filePath, err := resources.GetTempFilePath()
+	bf := streaming.BeginFile{
+		FileName:     "log.csv.gz",
+		ContentType:  "log/csv",
+		FormDataName: "log",
+	}
+
+	writer, err := streaming.NewFileStreamWriter(stream, bf)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = os.RemoveAll(filepath.Dir(filePath)) }()
 
 	request := new(search.SearchRequest)
 	message, err := stream.Recv()
@@ -35,19 +36,10 @@ func (exportImpl) Export(stream streaming.DuplexMessageStream, md metadata.MD) e
 		return err
 	}
 
-	err = service.NewImportService(request).Export(filePath)
+	err = service.NewImportService(request).Export(writer)
 	if err != nil {
 		return err
 	}
 
-	bf := streaming.BeginFile{
-		FileName:     "log.csv.gz",
-		ContentType:  "log/csv",
-		FormDataName: "log",
-	}
-	err = streaming.WriteFile(stream, filePath, bf)
-	if err != nil {
-		return err
-	}
 	return nil
 }

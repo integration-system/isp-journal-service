@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/csv"
+	"io"
 
 	"github.com/integration-system/isp-journal/entry"
 	"github.com/integration-system/isp-journal/search"
@@ -29,8 +30,8 @@ func NewImportService(req *search.SearchRequest) *exportService {
 	}
 }
 
-func (s *exportService) Export(filepath string) error {
-	return resources.CompressedCsvWriter(filepath, s.exportLog, resources.WithSeparator(';'))
+func (s *exportService) Export(writer io.WriteCloser) error {
+	return resources.CsvWriter(writer, s.exportLog, resources.WithSeparator(';'), resources.WithGzipCompression(true))
 }
 
 func (s *exportService) exportLog(writer *csv.Writer) error {
